@@ -17,8 +17,10 @@ class InfoMessage:
         self.calories = calories
 
     def get_message(self) -> str:
-        mess = (f'Тип тренировки: {self.training_type}; Длительность: {self.duration:.3f} ч.; Дистанция: '
-                f'{self.distance:.3f} км; Ср. скорость: {self.speed:.3f} км/ч; Потрачено ккал: {self.calories:.3f}.')
+        mess = (f'Тип тренировки: {self.training_type}; Длительность:'
+                f' {self.duration:.3f} ч.; Дистанция: '
+                f'{self.distance:.3f} км; Ср. скорость: {self.speed:.3f} км/ч;'
+                f' Потрачено ккал: {self.calories:.3f}.')
         return mess
 
 
@@ -74,7 +76,8 @@ class Running(Training):
         avg_spd: float = self.get_mean_speed()
         time_in_min: float = self.duration * 60
 
-        calories: float = (const_for_calc1 * avg_spd - const_for_calc2) * self.weight / self.M_IN_KM * time_in_min
+        calories: float = ((const_for_calc1 * avg_spd - const_for_calc2) *
+                           self.weight / self.M_IN_KM * time_in_min)
         return calories
 
 
@@ -98,7 +101,8 @@ class SportsWalking(Training):
         avg_spd: float = self.get_mean_speed()
         time_in_min: float = self.duration * 60
 
-        calories: float = ((const_for_calc1 * self.weight + (avg_spd ** 2 // self.height)
+        calories: float = ((const_for_calc1 * self.weight +
+                            (avg_spd ** 2 // self.height)
                             * const_for_calc2 * self.weight) * time_in_min)
         return calories
 
@@ -121,7 +125,8 @@ class Swimming(Training):
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        mean_spead: float = self.length_pool * self.count_pool / self.M_IN_KM / self.duration
+        mean_spead: float = (self.length_pool * self.count_pool / self.M_IN_KM
+                             / self.duration)
         return mean_spead
 
     def get_spent_calories(self) -> float:
@@ -130,7 +135,8 @@ class Swimming(Training):
         const_for_calc2: int = 2
         avg_spd: float = self.get_mean_speed()
 
-        calories: float = (avg_spd + const_for_calc1) * const_for_calc2 * self.weight
+        calories: float = ((avg_spd + const_for_calc1) * const_for_calc2 *
+                           self.weight)
         return calories
 
 
@@ -144,7 +150,8 @@ def read_package(workout_type: str, data: list) -> Training:
         'SWM': Swimming
     }
 
-    # Создаем объект по ключу тренеровки и передаем упакованный набор параметров в конструктор
+    # Создаем объект по ключу тренеровки и передаем упакованный набор
+    # параметров в конструктор
     train_obj: Training = train_dct[workout_type](*data)
     return train_obj
 
