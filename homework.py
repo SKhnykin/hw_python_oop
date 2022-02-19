@@ -76,8 +76,8 @@ class Running(Training):
         avg_spd: float = self.get_mean_speed()
         time_in_min: float = self.duration * 60
 
-        calories: float = ((const_for_calc1 * avg_spd - const_for_calc2) *
-                           self.weight / self.M_IN_KM * time_in_min)
+        calories: float = ((const_for_calc1 * avg_spd - const_for_calc2)
+                           * self.weight / self.M_IN_KM * time_in_min)
         return calories
 
 
@@ -101,8 +101,8 @@ class SportsWalking(Training):
         avg_spd: float = self.get_mean_speed()
         time_in_min: float = self.duration * 60
 
-        calories: float = ((const_for_calc1 * self.weight +
-                            (avg_spd ** 2 // self.height)
+        calories: float = ((const_for_calc1 * self.weight
+                            + (avg_spd ** 2 // self.height)
                             * const_for_calc2 * self.weight) * time_in_min)
         return calories
 
@@ -135,8 +135,8 @@ class Swimming(Training):
         const_for_calc2: int = 2
         avg_spd: float = self.get_mean_speed()
 
-        calories: float = ((avg_spd + const_for_calc1) * const_for_calc2 *
-                           self.weight)
+        calories: float = ((avg_spd + const_for_calc1) * const_for_calc2
+                           * self.weight)
         return calories
 
 
