@@ -21,10 +21,8 @@ class InfoMessage:
         return self.message.format(**asdict(self))
 
 
-@dataclass
 class Training:
     """Базовый класс тренировки."""
-    name: str = 'Training'
     M_IN_KM: int = 1000
     LEN_STEP: float = 0.65
     min_in_hour: int = 60
@@ -41,13 +39,11 @@ class Training:
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
-        distance: float = self.action * self.LEN_STEP / self.M_IN_KM
-        return distance
+        return self.action * self.LEN_STEP / self.M_IN_KM
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        mean_spead: float = self.get_distance() / self.duration
-        return mean_spead
+        return self.get_distance() / self.duration
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -56,18 +52,16 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        mess = InfoMessage(type(self).name,
+        return InfoMessage(type(self).__name__,
                            self.duration,
                            self.get_distance(),
                            self.get_mean_speed(),
                            self.get_spent_calories()
                            )
-        return mess
 
 
 class Running(Training):
     """Тренировка: бег."""
-    name: str = 'Running'
     const_for_calc_colories1: int = 18
     const_for_calc_colories2: int = 20
 
@@ -76,15 +70,13 @@ class Running(Training):
         avg_spd: float = self.get_mean_speed()
         time_in_min: float = self.duration * self.min_in_hour
 
-        calories: float = ((self.const_for_calc_colories1 * avg_spd
-                            - self.const_for_calc_colories2)
-                           * self.weight / self.M_IN_KM * time_in_min)
-        return calories
+        return ((self.const_for_calc_colories1 * avg_spd
+                - self.const_for_calc_colories2)
+                * self.weight / self.M_IN_KM * time_in_min)
 
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-    name: str = 'SportsWalking'
     const_for_calc_colories1: float = 0.035
     const_for_calc_colories2: float = 0.029
 
@@ -102,16 +94,14 @@ class SportsWalking(Training):
         avg_spd: float = self.get_mean_speed()
         time_in_min: float = self.duration * self.min_in_hour
 
-        calories: float = ((self.const_for_calc_colories1 * self.weight
-                            + (avg_spd ** 2 // self.height)
-                            * self.const_for_calc_colories2
-                            * self.weight) * time_in_min)
-        return calories
+        return ((self.const_for_calc_colories1 * self.weight
+                + (avg_spd ** 2 // self.height)
+                * self.const_for_calc_colories2
+                * self.weight) * time_in_min)
 
 
 class Swimming(Training):
     """Тренировка: плавание."""
-    name: str = 'Swimming'
     LEN_STEP: float = 1.38
     const_for_calc_colories1: float = 1.1
     const_for_calc_colories2: int = 2
@@ -129,17 +119,15 @@ class Swimming(Training):
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        mean_spead: float = (self.length_pool * self.count_pool / self.M_IN_KM
-                             / self.duration)
-        return mean_spead
+        return (self.length_pool * self.count_pool / self.M_IN_KM
+                / self.duration)
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
         avg_spd: float = self.get_mean_speed()
 
-        calories: float = ((avg_spd + self.const_for_calc_colories1)
-                           * self.const_for_calc_colories2 * self.weight)
-        return calories
+        return ((avg_spd + self.const_for_calc_colories1)
+                * self.const_for_calc_colories2 * self.weight)
 
 
 def read_package(workout_type: str, data: list) -> Training:
