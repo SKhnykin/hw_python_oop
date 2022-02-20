@@ -1,20 +1,15 @@
-from typing import Dict, TypeVar
+from typing import Dict
+from dataclasses import dataclass
 
 
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
-
-    def __init__(self,
-                 training_type: str,
-                 duration,
-                 distance,
-                 speed,
-                 calories) -> None:
-        self.training_type = training_type
-        self.duration = duration
-        self.distance = distance
-        self.speed = speed
-        self.calories = calories
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
 
     def get_message(self) -> str:
         mess = (f'Тип тренировки: {self.training_type}; Длительность:'
@@ -24,11 +19,13 @@ class InfoMessage:
         return mess
 
 
+@dataclass
 class Training:
     """Базовый класс тренировки."""
+    name: str = 'Training'
     M_IN_KM: int = 1000
     LEN_STEP: float = 0.65
-    name: str = 'Training'
+    min_in_hour: int = 60
 
     def __init__(self,
                  action: int,
@@ -52,11 +49,12 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        raise NotImplementedError(f'Переопроедлите метод get_spent_calories в'
+                                  f' {type(self).name}')
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        mess = InfoMessage(self.name,
+        mess = InfoMessage(type(self).name,
                            self.duration,
                            self.get_distance(),
                            self.get_mean_speed(),
@@ -68,15 +66,16 @@ class Training:
 class Running(Training):
     """Тренировка: бег."""
     name: str = 'Running'
+    const_for_calc_colories1: int = 18
+    const_for_calc_colories2: int = 20
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        const_for_calc1: int = 18
-        const_for_calc2: int = 20
         avg_spd: float = self.get_mean_speed()
-        time_in_min: float = self.duration * 60
+        time_in_min: float = self.duration * self.min_in_hour
 
-        calories: float = ((const_for_calc1 * avg_spd - const_for_calc2)
+        calories: float = ((self.const_for_calc_colories1 * avg_spd
+                            - self.const_for_calc_colories2)
                            * self.weight / self.M_IN_KM * time_in_min)
         return calories
 
@@ -84,6 +83,8 @@ class Running(Training):
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
     name: str = 'SportsWalking'
+    const_for_calc_colories1: float = 0.035
+    const_for_calc_colories2: float = 0.029
 
     def __init__(self,
                  action: int,
@@ -96,14 +97,13 @@ class SportsWalking(Training):
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        const_for_calc1: float = 0.035
-        const_for_calc2: float = 0.029
         avg_spd: float = self.get_mean_speed()
-        time_in_min: float = self.duration * 60
+        time_in_min: float = self.duration * self.min_in_hour
 
-        calories: float = ((const_for_calc1 * self.weight
+        calories: float = ((self.const_for_calc_colories1 * self.weight
                             + (avg_spd ** 2 // self.height)
-                            * const_for_calc2 * self.weight) * time_in_min)
+                            * self.const_for_calc_colories2
+                            * self.weight) * time_in_min)
         return calories
 
 
@@ -111,6 +111,8 @@ class Swimming(Training):
     """Тренировка: плавание."""
     name: str = 'Swimming'
     LEN_STEP: float = 1.38
+    const_for_calc_colories1: float = 1.1
+    const_for_calc_colories2: int = 2
 
     def __init__(self,
                  action: int,
@@ -131,29 +133,29 @@ class Swimming(Training):
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        const_for_calc1: float = 1.1
-        const_for_calc2: int = 2
         avg_spd: float = self.get_mean_speed()
 
-        calories: float = ((avg_spd + const_for_calc1) * const_for_calc2
-                           * self.weight)
+        calories: float = ((avg_spd + self.const_for_calc_colories1)
+                           * self.const_for_calc_colories2 * self.weight)
         return calories
 
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    train = TypeVar('train', Running, SportsWalking, Swimming)
 
-    train_dct: Dict[str, train] = {
+    train_dct: Dict[str, Training] = {
         'RUN': Running,
         'WLK': SportsWalking,
         'SWM': Swimming
     }
 
-    # Создаем объект по ключу тренеровки и передаем упакованный набор
-    # параметров в конструктор
-    train_obj: Training = train_dct[workout_type](*data)
-    return train_obj
+    if train_dct.get(workout_type) is not None:
+        # Создаем объект по ключу тренеровки и передаем упакованный набор
+        # параметров в конструктор
+        train_obj: Training = train_dct[workout_type](*data)
+        return train_obj
+    else:
+        raise Exception('Неверный вид тренеровки')
 
 
 def main(training: Training) -> None:
@@ -170,5 +172,8 @@ if __name__ == '__main__':
     ]
 
     for workout_type, data in packages:
-        training = read_package(workout_type, data)
-        main(training)
+        try:
+            training = read_package(workout_type, data)
+            main(training)
+        except Exception as e:
+            print(e)
